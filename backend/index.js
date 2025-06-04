@@ -12,7 +12,7 @@ import RiwayatSewaRoute from "./routes/riwayatSewa_routes.js";
 const app = express();
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "https://g-13-450802.uc.r.appspot.com",
   credentials: true,
 }));
 app.use(express.json());
