@@ -126,13 +126,8 @@ export const updateDaftarSewa = async (req, res) => {
     if (tgl_selesai) {
       const tglBaru = new Date(tgl_selesai);
       const tglLama = new Date(sewa.tgl_selesai);
-      if (tglBaru <= tglLama) return res.status(400).json({ message: "Tanggal selesai baru harus lebih besar dari sebelumnya" });
-
-      try {
-        await simpanRiwayat(sewa, `update tanggal selesai: dari ${sewa.tgl_selesai} ke ${tgl_selesai}`);
-      } catch (err) {
-        console.error("Gagal simpan riwayat update tanggal:", err.message);
-      }
+      if (tglBaru <= tglLama)
+        return res.status(400).json({ message: "Tanggal selesai baru harus lebih besar dari sebelumnya" });
 
       sewa.tgl_selesai = tgl_selesai;
       perubahan = true;
@@ -148,9 +143,13 @@ export const updateDaftarSewa = async (req, res) => {
       perubahan = true;
     }
 
-    if (!perubahan) return res.status(400).json({ message: "Tidak ada perubahan dilakukan" });
+    if (!perubahan)
+      return res.status(400).json({ message: "Tidak ada perubahan dilakukan" });
 
     await sewa.save();
+
+    // Setelah data diperbarui, simpan ke riwayat dengan tanggal baru
+    await simpanRiwayat(sewa, "diperpanjang");
 
     res.json({ message: "Data sewa berhasil diperbarui", sewa });
   } catch (error) {
@@ -158,6 +157,7 @@ export const updateDaftarSewa = async (req, res) => {
     res.status(500).json({ message: "Gagal memperbarui data sewa" });
   }
 };
+
 
 // ======================= SELESAIKAN =======================
 export const selesaiSewa = async (req, res) => {
