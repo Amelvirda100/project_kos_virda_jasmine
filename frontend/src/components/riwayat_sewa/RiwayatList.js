@@ -11,7 +11,7 @@ const RiwayatList = () => {
 
   const getRiwayatSewa = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/riwayat');
+      const response = await axios.get('https://projek-kos-backend-171192151600.us-central1.run.app/riwayat');
       setRiwayat(response.data);
     } catch (error) {
       console.log(error);
