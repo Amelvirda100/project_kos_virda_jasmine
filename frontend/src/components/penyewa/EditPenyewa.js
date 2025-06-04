@@ -28,7 +28,7 @@ const EditPenyewa = () => {
   const updatePenyewa = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/penyewa/${id}`, {
+      await axios.put(`https://projek-kos-backend-171192151600.us-central1.run.app/penyewa/${id}`, {
         nama,
         alamat,
         no_telp
