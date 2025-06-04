@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 // Route
 import AdminRoute from "./routes/admin_routes.js";
@@ -27,4 +30,6 @@ app.use(PenyewaRoute);
 app.use(DaftarSewaRoute);
 app.use(RiwayatSewaRoute);
 
-app.listen(5000, () => console.log("Server nyambung di port 5000"));
+app.listen(5000, () => console.log("Server nyambung di port 5000");
+                        console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
+});
