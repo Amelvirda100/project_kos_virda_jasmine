@@ -16,10 +16,10 @@ const AddDaftarSewa = () => {
   useEffect(() => {
   const fetchData = async () => {
     try {
-      const resPenyewa = await axios.get('http://localhost:5000/penyewa');
+      const resPenyewa = await axios.get('https://projek-kos-backend-171192151600.us-central1.run.app/penyewa');
       setPenyewaList(resPenyewa.data);
 
-      const resKamar = await axios.get('http://localhost:5000/kamar');
+      const resKamar = await axios.get('https://projek-kos-backend-171192151600.us-central1.run.app/kamar');
       console.log('Data kamar dari backend:', resKamar.data);
       setKamarList(resKamar.data.filter(kamar => kamar.status.toLowerCase() === 'kosong'));
     } catch (error) {
@@ -41,14 +41,14 @@ const AddDaftarSewa = () => {
 
     try {
       // Cek status kamar sebelum buat sewa
-      const resKamar = await axios.get(`http://localhost:5000/kamar/${kamar_id}`);
+      const resKamar = await axios.get(`https://projek-kos-backend-171192151600.us-central1.run.app/kamar/${kamar_id}`);
       if (resKamar.data.status.toLowerCase() !== 'kosong') {
         alert('Kamar tidak tersedia');
         return;
       }
 
       // Buat entri daftar_sewa
-      await axios.post('http://localhost:5000/sewa', {
+      await axios.post('https://projek-kos-backend-171192151600.us-central1.run.app/sewa', {
         id_penyewa,
         kamar_id,
         tgl_mulai,
