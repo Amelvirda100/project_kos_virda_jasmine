@@ -11,7 +11,7 @@ const SewaList = () => {
 
 const getAllSewa = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/sewa');
+    const response = await axios.get('https://projek-kos-backend-171192151600.us-central1.run.app/sewa');
     console.log(response.data); // Tambahkan ini
     setSewa(response.data);
   } catch (error) {
