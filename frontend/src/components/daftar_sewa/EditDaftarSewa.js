@@ -14,7 +14,7 @@ const EditDaftarSewa = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resSewa = await axios.get(`http://localhost:5000/sewa/${id}`);
+        const resSewa = await axios.get(`https://projek-kos-backend-171192151600.us-central1.run.app/sewa/${id}`);
         setDaftarSewa(resSewa.data);
         setTglSelesaiBaru(resSewa.data.tgl_selesai || '');
       } catch (error) {
@@ -32,7 +32,7 @@ const EditDaftarSewa = () => {
     }
 
     try {
-      await axios.put(`http://localhost:5000/sewa/${id}`, {
+      await axios.put(`https://projek-kos-backend-171192151600.us-central1.run.app/sewa/${id}`, {
         tgl_selesai: tglSelesaiBaru
       });
       alert('Data sewa berhasil diperbarui.');
@@ -46,7 +46,7 @@ const EditDaftarSewa = () => {
   const updateStatusSewa = async (statusBaru) => {
     try {
       const endpoint = statusBaru === 'Selesai' ? 'selesai' : 'batalkan';
-      await axios.put(`http://localhost:5000/sewa/${id}/${endpoint}`);
+      await axios.put(`https://projek-kos-backend-171192151600.us-central1.run.app/sewa/${id}/${endpoint}`);
       alert(`Sewa berhasil di${statusBaru === 'Selesai' ? 'akhiri' : 'batalkan'}.`);
       navigate('/sewa');
     } catch (error) {
