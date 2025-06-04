@@ -11,7 +11,7 @@ const AddKamar = () => {
   const saveKamar = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/kamar', {
+      await axios.post('https://projek-kos-backend-171192151600.us-central1.run.app/kamar', {
         no_kamar,
         tipe_kamar,
         harga,
