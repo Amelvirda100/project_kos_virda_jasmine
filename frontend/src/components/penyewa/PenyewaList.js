@@ -22,7 +22,7 @@ const PenyewaList = () => {
 
   const getPenyewa = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/penyewa', authHeader());
+      const response = await axios.get('https://projek-kos-backend-171192151600.us-central1.run.app/penyewa', authHeader());
       setPenyewa(response.data);
     } catch (error) {
       console.log(error);
@@ -31,7 +31,7 @@ const PenyewaList = () => {
 
   const getSewaAktif = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/sewa', authHeader());
+      const response = await axios.get('https://projek-kos-backend-171192151600.us-central1.run.app/sewa', authHeader());
       const aktif = response.data.filter(sewa => sewa.status_sewa !== "Selesai");
       setSewaAktif(aktif);
     } catch (error) {
@@ -53,7 +53,7 @@ const PenyewaList = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/penyewa/${id_penyewa}`, authHeader());
+      await axios.delete(`https://projek-kos-backend-171192151600.us-central1.run.app/penyewa/${id_penyewa}`, authHeader());
       getPenyewa();
     } catch (error) {
       alert(error.response?.data?.msg || "Gagal menghapus penyewa");
