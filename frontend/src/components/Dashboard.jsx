@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import '../styles/bentuk.css'; 
 import { FaBed, FaUsers, FaClipboardList, FaBars, FaHistory } from "react-icons/fa";
@@ -12,9 +12,12 @@ const Dashboard = () => {
   const [totalRiwayatSewa, setTotalRiwayatSewa] = useState(0);
   
   const location = useLocation();
+  const navigate = useNavigate(); // letakkan di atas useEffect
+  const token = localStorage.getItem("token"); // atau dari cookies/sessionStorage sesuai implementasi kamu
+
 
   useEffect(() => {
-    if (token!){
+    if (!token){
       navigate("/login", {replace: true});
     } else{
     getTotalData();
