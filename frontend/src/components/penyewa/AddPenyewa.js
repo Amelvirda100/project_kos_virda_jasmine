@@ -11,7 +11,7 @@ const AddPenyewa = () => {
   const savePenyewa = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/penyewa', {
+      await axios.post('https://projek-kos-backend-171192151600.us-central1.run.app/penyewa', {
         nama,
         alamat,
         no_telp
