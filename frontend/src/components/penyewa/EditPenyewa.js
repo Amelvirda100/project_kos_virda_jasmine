@@ -13,7 +13,7 @@ const EditPenyewa = () => {
   useEffect(() => {
     const fetchPenyewa = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/penyewa/${id}`);
+        const res = await axios.get(`https://projek-kos-backend-171192151600.us-central1.run.app/penyewa/${id}`);
         setNama(res.data.nama);
         setAlamat(res.data.alamat);
         setNoHp(res.data.no_telp);
