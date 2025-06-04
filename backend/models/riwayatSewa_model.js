@@ -42,7 +42,7 @@ const RiwayatSewa = db.define("riwayat_sewa", {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM("aktif", "selesai", "dibatalkan"),
+    type: DataTypes.ENUM("aktif", "selesai", "dibatalkan", "diperpanjang"),
     allowNull: false,
     defaultValue: "aktif"
   }
