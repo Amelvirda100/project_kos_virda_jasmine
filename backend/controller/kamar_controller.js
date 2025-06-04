@@ -33,11 +33,16 @@ async function createKamar(req, res) {
 }
 
 // UPDATE
+// UPDATE (dengan validasi status)
 async function updateKamar(req, res) {
   try {
     const { id } = req.params;
     const kamar = await Kamar.findByPk(id);
     if (!kamar) return res.status(404).json({ msg: "Kamar tidak ditemukan" });
+
+    if (kamar.status === "Terisi") {
+      return res.status(400).json({ msg: "Kamar sedang terisi dan tidak dapat diedit" });
+    }
 
     await Kamar.update(req.body, { where: { kamar_id: id } });
     return res.status(200).json({ msg: "Kamar berhasil diupdate" });

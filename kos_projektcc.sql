@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 01, 2025 at 01:43 PM
+-- Generation Time: Jun 04, 2025 at 12:13 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -36,6 +36,14 @@ CREATE TABLE `daftar_sewa` (
   `status_sewa` enum('Aktif','Selesai','Dibatalkan') DEFAULT 'Aktif'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `daftar_sewa`
+--
+
+INSERT INTO `daftar_sewa` (`id_sewa`, `id_penyewa`, `kamar_id`, `tgl_mulai`, `tgl_selesai`, `status_sewa`) VALUES
+(42, 4, 4, '2025-06-05', '2025-06-12', 'Aktif'),
+(43, 8, 8, '2025-06-13', '2025-06-14', 'Aktif');
+
 -- --------------------------------------------------------
 
 --
@@ -55,7 +63,8 @@ CREATE TABLE `kamar` (
 --
 
 INSERT INTO `kamar` (`kamar_id`, `no_kamar`, `tipe_kamar`, `harga`, `status`) VALUES
-(1, 'A', 'Ekonomi', 25000, 'Kosong');
+(4, '1', 'Standar', 2000, 'Terisi'),
+(8, '5', 'Ekonomi', 1000, 'Terisi');
 
 -- --------------------------------------------------------
 
@@ -69,6 +78,42 @@ CREATE TABLE `penyewa` (
   `alamat` text DEFAULT NULL,
   `no_telp` varchar(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `penyewa`
+--
+
+INSERT INTO `penyewa` (`id_penyewa`, `nama`, `alamat`, `no_telp`) VALUES
+(4, 'thanos', 'mars', '222'),
+(5, 'juwita', 'trenggono. jawa timur', '3333'),
+(8, 'lala', 'lili', '6789');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `riwayat_sewa`
+--
+
+CREATE TABLE `riwayat_sewa` (
+  `id_riwayat` int(11) NOT NULL,
+  `nama_penyewa` varchar(100) NOT NULL,
+  `alamat_penyewa` text NOT NULL,
+  `no_telp_penyewa` varchar(15) NOT NULL,
+  `no_kamar` varchar(10) NOT NULL,
+  `tipe_kamar` enum('Ekonomi','Standar','VIP') NOT NULL,
+  `harga_kamar` int(11) NOT NULL,
+  `tanggal_mulai` date NOT NULL,
+  `tanggal_selesai` date NOT NULL,
+  `status` enum('aktif','selesai','dibatalkan') NOT NULL DEFAULT 'selesai'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `riwayat_sewa`
+--
+
+INSERT INTO `riwayat_sewa` (`id_riwayat`, `nama_penyewa`, `alamat_penyewa`, `no_telp_penyewa`, `no_kamar`, `tipe_kamar`, `harga_kamar`, `tanggal_mulai`, `tanggal_selesai`, `status`) VALUES
+(28, 'thanos', 'mars', '222', '1', 'Standar', 2000, '2025-06-05', '2025-06-12', 'aktif'),
+(29, 'lala', 'lili', '6789', '5', 'Ekonomi', 1000, '2025-06-13', '2025-06-14', 'aktif');
 
 -- --------------------------------------------------------
 
@@ -91,7 +136,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `refresh_token`, `createdAt`, `updatedAt`) VALUES
-(1, 'amel', 'amel@gmail.com', '$2b$07$06coA6EX7h5.aZSARLkmVOv11nLf.OLD.YxlTAyShXXAR9WCu5tGK', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFtZWwiLCJlbWFpbCI6ImFtZWxAZ21haWwuY29tIiwiY3JlYXRlZEF0IjoiMjAyNS0wNi0wMVQxMDozMDo1NS4wMDBaIiwidXBkYXRlZEF0IjoiMjAyNS0wNi0wMVQxMToxODo0OS4wMDBaIiwiaWF0IjoxNzQ4Nzc3MTQxLCJleHAiOjE3NDg4NjM1NDF9.RwgTJ-hMlbmGromYVdsGen2DrU6ZzpXnP-KutgvHJd4', '2025-06-01 10:30:55', '2025-06-01 11:25:41');
+(1, 'amel', 'amel@gmail.com', '$2b$07$06coA6EX7h5.aZSARLkmVOv11nLf.OLD.YxlTAyShXXAR9WCu5tGK', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFtZWwiLCJlbWFpbCI6ImFtZWxAZ21haWwuY29tIiwiY3JlYXRlZEF0IjoiMjAyNS0wNi0wMVQxMDozMDo1NS4wMDBaIiwidXBkYXRlZEF0IjoiMjAyNS0wNi0wNFQwODoxMjozNC4wMDBaIiwiaWF0IjoxNzQ5MDI1MzA3LCJleHAiOjE3NDkxMTE3MDd9.xkO_sJAYOUddYI5REb8-qajMtr-l-SKOSm1r-ZHvqBU', '2025-06-01 10:30:55', '2025-06-04 08:21:47'),
+(2, 'y', 'y@gmail.com', '$2b$07$ndUXCGdzX2QtjIziG3OtiufxRLQLKIATgzB6GP1qb68KqhN/.M1FK', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6InkiLCJlbWFpbCI6InlAZ21haWwuY29tIiwiY3JlYXRlZEF0IjoiMjAyNS0wNi0wNFQwOTo0ODo0OC4wMDBaIiwidXBkYXRlZEF0IjoiMjAyNS0wNi0wNFQwOTo0ODo0OC4wMDBaIiwiaWF0IjoxNzQ5MDMwNTM5LCJleHAiOjE3NDkxMTY5Mzl9.yBigouF2VTYNxGG83tv1IyAb3KDBmvnyTbwz4Ie8qBo', '2025-06-04 09:48:48', '2025-06-04 09:48:59');
 
 --
 -- Indexes for dumped tables
@@ -119,6 +165,12 @@ ALTER TABLE `penyewa`
   ADD PRIMARY KEY (`id_penyewa`);
 
 --
+-- Indexes for table `riwayat_sewa`
+--
+ALTER TABLE `riwayat_sewa`
+  ADD PRIMARY KEY (`id_riwayat`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -132,25 +184,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `daftar_sewa`
 --
 ALTER TABLE `daftar_sewa`
-  MODIFY `id_sewa` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_sewa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `kamar`
 --
 ALTER TABLE `kamar`
-  MODIFY `kamar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `kamar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `penyewa`
 --
 ALTER TABLE `penyewa`
-  MODIFY `id_penyewa` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_penyewa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `riwayat_sewa`
+--
+ALTER TABLE `riwayat_sewa`
+  MODIFY `id_riwayat` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables

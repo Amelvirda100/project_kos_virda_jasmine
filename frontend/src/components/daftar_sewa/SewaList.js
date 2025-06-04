@@ -20,15 +20,6 @@ const getAllSewa = async () => {
 };
 
 
-  const deleteSewa = async (id_sewa) => {
-    try {
-      await axios.delete(`http://localhost:5000/sewa/${id_sewa}`);
-      getAllSewa();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <div className="columns is-centered mt-5">
       <div className="column is-half">
@@ -65,9 +56,18 @@ const getAllSewa = async () => {
             <td>{item.tgl_selesai}</td>
             <td>{item.status_sewa}</td>
             <td>
-              <Link to={`/sewa/edit/${item.id_sewa}`} className="button is-small is-info is-light">Edit</Link>
-              <button onClick={() => deleteSewa(item.id_sewa)} className="button is-small is-danger is-light">Hapus</button>
-            </td>
+            {item.status_sewa !== "Selesai" && (
+              <>
+                <Link to={`/sewa/edit/${item.id_sewa}`} className="button is-small is-info is-light">Edit</Link>
+              </>
+            )}
+            {item.status_sewa === "Selesai" && (
+              <button className="button is-small is-dark is-light" disabled>
+                Selesai
+              </button>
+            )}
+          </td>
+
           </tr>
         ))}
       </tbody>

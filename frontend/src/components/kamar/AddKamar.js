@@ -51,7 +51,7 @@ const AddKamar = () => {
           </div>
 
           <div className="field">
-            <label className="label">Status</label>
+            <label className="label">Status Kamar</label>
             <input className="input" type="text" value="Kosong" disabled />
           </div>
 

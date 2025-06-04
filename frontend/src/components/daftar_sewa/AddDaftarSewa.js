@@ -57,7 +57,7 @@ const AddDaftarSewa = () => {
       });
 
       alert('Data sewa berhasil disimpan');
-      navigate('/sewa/add');
+      navigate('/sewa');
     } catch (error) {
       console.error(error);
       alert('Gagal menyimpan data sewa');
@@ -119,7 +119,7 @@ const AddDaftarSewa = () => {
           </div>
 
           <div className="field">
-            <label className="label">Tanggal Selesai Sewa (Opsional)</label>
+            <label className="label">Tanggal Selesai Sewa </label>
             <input
               type="date"
               className="input"
@@ -130,17 +130,7 @@ const AddDaftarSewa = () => {
 
           <div className="field">
             <label className="label">Status Sewa</label>
-            <div className="select is-fullwidth">
-              <select
-                value={status_sewa}
-                onChange={(e) => setStatusSewa(e.target.value)}
-                required
-              >
-                <option value="Aktif">Aktif</option>
-                <option value="Selesai">Selesai</option>
-                <option value="Dibatalkan">Dibatalkan</option>
-              </select>
-            </div>
+            <input className="input" type="text" value="Aktif" disabled />
           </div>
 
           <button type="submit" className="button is-primary is-light mt-4">

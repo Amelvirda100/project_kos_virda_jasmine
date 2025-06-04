@@ -1,49 +1,44 @@
 import DaftarSewa from "../models/daftarSewa_model.js";
 import Penyewa from "../models/penyewa_model.js";
 import Kamar from "../models/kamar_model.js";
+import RiwayatSewa from "../models/riwayatSewa_model.js";
+import { Op } from "sequelize";
 
-/// Ambil semua daftar sewa
+
+// GET ALL
 export const getAllSewa = async (req, res) => {
   try {
+    await checkExpiredSewa();
+
     const data = await DaftarSewa.findAll({
       include: [
-        { model: Penyewa, attributes: ['id_penyewa', 'nama'] }, // contoh atribut tambahan
+        { model: Penyewa, attributes: ['id_penyewa', 'nama'] },
         { model: Kamar, attributes: ['kamar_id', 'no_kamar'] }
       ],
       order: [['id_sewa', 'ASC']]
     });
 
-    // Debug isi relasi Penyewa dan Kamar untuk item pertama
-    if (data.length > 0) {
-      console.log("Keys of item 0:", Object.keys(data[0].dataValues));
-      console.log("Raw full data:", JSON.stringify(data[0], null, 2));
-
-    }
-
-    // Ubah properti agar frontend sesuai (optional)
-      const hasil = data.map(item => ({
-        id_sewa: item.id_sewa,
-        id_penyewa: item.id_penyewa,
-        kamar_id: item.kamar_id,
-        tgl_mulai: item.tgl_mulai,
-        tgl_selesai: item.tgl_selesai,
-        status_sewa: item.status_sewa,
-        nama: item.penyewa?.nama,
-        no_kamar: item.kamar?.no_kamar || item.Kamar?.no_kamar
-      }));
-
+    const hasil = data.map(item => ({
+      id_sewa: item.id_sewa,
+      id_penyewa: item.id_penyewa,
+      kamar_id: item.kamar_id,
+      tgl_mulai: item.tgl_mulai,
+      tgl_selesai: item.tgl_selesai,
+      status_sewa: item.status_sewa,
+      nama: item.penyewa?.nama,
+      no_kamar: item.kamar?.no_kamar || item.Kamar?.no_kamar
+    }));
 
     res.json(hasil);
   } catch (error) {
-    console.log(error); // untuk melihat hasil raw dari Sequelize
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
 
-
-
-// Ambil data sewa berdasarkan ID
+// GET BY ID
 export const getSewabyId = async (req, res) => {
+  const { id_penyewa, kamar_id, tgl_mulai, tgl_selesai } = req.body;
   try {
     const id = req.params.id;
     const data = await DaftarSewa.findOne({
@@ -55,7 +50,6 @@ export const getSewabyId = async (req, res) => {
     });
     if (!data) return res.status(404).json({ message: "Data tidak ditemukan" });
 
-    // Ubah properti untuk frontend
     const hasil = {
       id_sewa: data.id_sewa,
       id_penyewa: data.id_penyewa,
@@ -69,114 +63,238 @@ export const getSewabyId = async (req, res) => {
 
     res.json(hasil);
   } catch (error) {
-    console.log(error); // untuk melihat hasil raw dari Sequelize
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// CREATE
-async function createDaftarSewa(req, res) {
+// CREATE DENGAN VALIDASI
+export const createDaftarSewa = async (req, res) => {
+  const { id_penyewa, kamar_id, tgl_mulai, tgl_selesai } = req.body;
+
   try {
-    const result = await DaftarSewa.create(req.body);
-    return res.status(201).json(result);
+    const kamar = await Kamar.findByPk(kamar_id);
+    if (!kamar) {
+      return res.status(404).json({ message: "Kamar tidak ditemukan" });
+    }
+    if (kamar.status === "Terisi") {
+      return res.status(400).json({ message: "Kamar sedang terisi dan belum tersedia" });
+    }
+
+    const sewaAktif = await DaftarSewa.findOne({
+      where: {
+        kamar_id: kamar_id,
+        status_sewa: "Aktif"
+      }
+    });
+
+    if (sewaAktif) {
+      return res.status(400).json({ message: "Kamar ini sedang disewa oleh penyewa lain" });
+    }
+
+        // === Validasi tanggal selesai tidak boleh kurang dari hari ini ===
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // reset jam agar validasi tidak terganggu
+    const tglSelesai = new Date(tgl_selesai);
+    tglSelesai.setHours(0, 0, 0, 0);
+
+    if (tglSelesai < today) {
+      return res.status(400).json({ message: "Tanggal selesai tidak boleh kurang dari hari ini" });
+    }
+
+    // 1. Buat data sewa
+    const sewaBaru = await DaftarSewa.create({
+      id_penyewa,
+      kamar_id,
+      tgl_mulai,
+      tgl_selesai,
+      status_sewa: "Aktif"
+    });
+
+    // 2. Update status kamar jadi "Terisi"
+    await kamar.update({ status: "Terisi" });
+
+    // 3. Ambil data lengkap dari sewaBaru termasuk Penyewa dan Kamar (dengan atribut yang dipilih)
+    const sewaLengkap = await DaftarSewa.findOne({
+      where: { id_sewa: sewaBaru.id_sewa },
+      include: [
+        {
+          model: Penyewa,
+          required: true
+        },
+        {
+          model: Kamar,
+          required: true
+        }
+      ]
+    });
+
+    // 4. Simpan ke tabel riwayat_sewa dengan status "dibuat"
+    await simpanRiwayat(sewaLengkap, "aktif");
+
+    // 5. Kirim respons ke client
+    res.status(201).json({ message: "Sewa berhasil dibuat", sewa: sewaBaru });
+
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Terjadi kesalahan saat membuat sewa" });
+  }
+};
+
+
+//HELPER FUNCTION SIMPAN RIWAYAT
+async function simpanRiwayat(sewa, statusDesc) {
+  try {
+       if (!sewa.penyewa || !sewa.kamar) {
+      console.error("Relasi penyewa atau kamar tidak ditemukan!");
+      return;
+    }
+    return await RiwayatSewa.create({
+      nama_penyewa: sewa.penyewa.nama,
+      alamat_penyewa: sewa.penyewa.alamat,
+      no_telp_penyewa: sewa.penyewa.no_telp,
+      no_kamar: sewa.kamar.no_kamar,
+      tipe_kamar: sewa.kamar.tipe_kamar,
+      harga_kamar: sewa.kamar.harga,
+      tanggal_mulai: sewa.tgl_mulai,
+      tanggal_selesai: sewa.tgl_selesai,
+      status: statusDesc
+    });
+  } catch (error) {
+    console.error("Gagal simpan ke riwayat:", error.message);
+    throw error;
   }
 }
+
+
 
 // UPDATE
-async function updateDaftarSewa(req, res) {
+export const updateDaftarSewa = async (req, res) => {
+  const { id } = req.params;
+  const { tgl_mulai, tgl_selesai, id_penyewa } = req.body;
+
   try {
-    const { id } = req.params;
-    const sewa = await DaftarSewa.findByPk(id);
-    if (!sewa) return res.status(404).json({ msg: "Data sewa tidak ditemukan" });
+    const sewa = await DaftarSewa.findByPk(id, {
+      include: [Penyewa, Kamar]
+    });
+    if (!sewa) return res.status(404).json({ message: "Sewa tidak ditemukan" });
 
-    await DaftarSewa.update(req.body, { where: { id_sewa: id } });
-    return res.status(200).json({ msg: "Data sewa berhasil diupdate" });
+    let perubahan = false;
+
+    if (tgl_selesai) {
+      const tglSelesaiBaru = new Date(tgl_selesai);
+      const tglSelesaiLama = new Date(sewa.tgl_selesai);
+      if (tglSelesaiBaru <= tglSelesaiLama) {
+        return res.status(400).json({ message: "Tanggal selesai baru harus lebih besar dari sebelumnya" });
+      }
+
+      // Simpan riwayat perubahan tanggal selesai (1 riwayat)
+      await simpanRiwayat(sewa, `update tanggal selesai: dari ${sewa.tgl_selesai} ke ${tgl_selesai}`);
+
+      sewa.tgl_selesai = tgl_selesai;
+      perubahan = true;
+    }
+
+    if (tgl_mulai) sewa.tgl_mulai = tgl_mulai;
+    if (id_penyewa) sewa.id_penyewa = id_penyewa;
+
+    await sewa.save();
+
+    return res.json({ message: "Data sewa berhasil diperbarui", sewa });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    return res.status(500).json({ message: "Gagal memperbarui data sewa" });
   }
-}
+};
 
-// DELETE
-async function deleteDaftarSewa(req, res) {
-  try {
-    const { id } = req.params;
-    const sewa = await DaftarSewa.findByPk(id);
-    if (!sewa) return res.status(404).json({ msg: "Data sewa tidak ditemukan" });
 
-    await DaftarSewa.destroy({ where: { id_sewa: id } });
-    return res.status(200).json({ msg: "Data sewa berhasil dihapus" });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
-  }
-}
 
+
+// SELESAIKAN SEWA
 export const selesaiSewa = async (req, res) => {
   try {
     const { id } = req.params;
-    const sewa = await DaftarSewa.findByPk(id);
-    if (!sewa) return res.status(404).json({ msg: "Data sewa tidak ditemukan" });
 
-    if (sewa.status_sewa !== "Aktif") {
-      return res.status(400).json({ msg: "Sewa harus dalam status Aktif untuk diselesaikan" });
-    }
+    const sewa = await DaftarSewa.findOne({
+      where: { id_sewa: id },
+      include: [Penyewa, Kamar]
+    });
 
-    // Update status sewa jadi 'Selesai' dan tgl_selesai hari ini
-    await DaftarSewa.update(
-      {
-        status_sewa: "Selesai",
-        tgl_selesai: new Date().toISOString().split("T")[0],
-      },
-      { where: { id_sewa: id } }
-    );
+    if (!sewa) return res.status(404).json({ msg: "Sewa tidak ditemukan" });
 
-    // Update status kamar jadi 'Kosong'
-    await Kamar.update(
-      { status: "Kosong" },
-      { where: { kamar_id: sewa.kamar_id } }
-    );
+    await simpanRiwayat(sewa, "selesai");
 
-    res.json({ msg: "Sewa berhasil diselesaikan dan kamar diupdate ke Kosong" });
+    await Kamar.update({ status: "Kosong" }, { where: { kamar_id: sewa.kamar_id } });
+    await DaftarSewa.destroy({ where: { id_sewa: id } });
+
+    res.json({ msg: "Sewa selesai dan data dipindahkan ke riwayat_sewa." });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: error.message });
   }
 };
 
+
+
+// BATALKAN SEWA
 export const batalkanSewa = async (req, res) => {
   try {
     const { id } = req.params;
-    const sewa = await DaftarSewa.findByPk(id);
-    if (!sewa) return res.status(404).json({ msg: "Data sewa tidak ditemukan" });
 
-    if (sewa.status_sewa !== "Aktif") {
-      return res.status(400).json({ msg: "Sewa harus dalam status Aktif untuk dibatalkan" });
-    }
+    const sewa = await DaftarSewa.findOne({
+      where: { id_sewa: id },
+      include: [Penyewa, Kamar]
+    });
 
-    // Update status sewa jadi 'Dibatalkan'
-    await DaftarSewa.update(
-      {
-        status_sewa: "Dibatalkan",
-        tgl_selesai: null, // biasanya tanggal selesai dihapus saat batal
-      },
-      { where: { id_sewa: id } }
-    );
+    if (!sewa) return res.status(404).json({ msg: "Sewa tidak ditemukan" });
 
-    // Update status kamar jadi 'Kosong'
-    await Kamar.update(
-      { status: "Kosong" },
-      { where: { kamar_id: sewa.kamar_id } }
-    );
+    await simpanRiwayat(sewa, "dibatalkan");
 
-    res.json({ msg: "Sewa berhasil dibatalkan dan kamar diupdate ke Kosong" });
+    await Kamar.update({ status: "Kosong" }, { where: { kamar_id: sewa.kamar_id } });
+    await DaftarSewa.destroy({ where: { id_sewa: id } });
+
+    res.json({ msg: "Sewa dibatalkan dan dipindah ke riwayat_sewa." });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: error.message });
   }
 };
 
-export {createDaftarSewa, updateDaftarSewa, deleteDaftarSewa };
+
+// CEK SEWA YANG SUDAH HABIS TANGGALNYA
+export const checkExpiredSewa = async () => {
+  try {
+    const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+
+    const expiredSewa = await DaftarSewa.findAll({
+      where: {
+        tgl_selesai: { [Op.lt]: today },
+        status_sewa: "Aktif"
+      },
+      include: [Penyewa, Kamar]
+    });
+
+    for (const sewa of expiredSewa) {
+      await RiwayatSewa.create({
+        nama_penyewa: sewa.penyewa.nama,
+        alamat_penyewa: sewa.penyewa.alamat,
+        no_telp_penyewa: sewa.penyewa.no_telp,
+        no_kamar: sewa.kamar.no_kamar,
+        tipe_kamar: sewa.kamar.tipe_kamar,
+        harga_kamar: sewa.kamar.harga,
+        tanggal_mulai: sewa.tgl_mulai,
+        tanggal_selesai: sewa.tgl_selesai,
+        status: "otomatis selesai"
+      });
+
+      await Kamar.update({ status: "Kosong" }, { where: { kamar_id: sewa.kamar_id } });
+      await DaftarSewa.destroy({ where: { id_sewa: sewa.id_sewa } });
+    }
+
+    console.log(`${expiredSewa.length} sewa otomatis dipindahkan ke riwayat`);
+  } catch (error) {
+    console.error("Gagal cek sewa otomatis:", error.message);
+  }
+};

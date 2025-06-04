@@ -51,7 +51,7 @@ const EditKamar = () => {
 
           <div className="field">
             <label className="label">Nomor Kamar</label>
-            <input className="input" type="text" value={no_kamar} onChange={(e) => setNoKamar(e.target.value)} />
+            <input className="input" type="text" value={no_kamar} onChange={(e) => setNoKamar(e.target.value)} required />
           </div>
 
           <div className="field">
@@ -67,13 +67,13 @@ const EditKamar = () => {
 
           <div className="field">
             <label className="label">Harga</label>
-            <input className="input" type="number" value={harga} onChange={(e) => setHarga(e.target.value)} />
+            <input className="input" type="number" value={harga} onChange={(e) => setHarga(e.target.value)} required />
           </div>
 
           <div className="field">
             <label className="label">Status</label>
             <div className="select is-fullwidth">
-              <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} required>
                 <option value="Kosong">Kosong</option>
                 <option value="Terisi">Terisi</option>
               </select>

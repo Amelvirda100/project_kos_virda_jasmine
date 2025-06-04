@@ -15,9 +15,11 @@ const Penyewa = db.define("penyewa", {
   },
   alamat: {
     type: DataTypes.TEXT,
+    allowNull: false,
   },
   no_telp: {
     type: DataTypes.STRING(15),
+    allowNull: false,
   },
 }, {
   freezeTableName: true,

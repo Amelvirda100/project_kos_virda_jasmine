@@ -33,7 +33,7 @@ const DaftarSewa = db.define("daftar_sewa", {
   },
   tgl_selesai: {
     type: DataTypes.DATEONLY,
-    allowNull: true,
+    allowNull: false,
   },
   status_sewa: {
     type: DataTypes.ENUM("Aktif", "Selesai", "Dibatalkan"),

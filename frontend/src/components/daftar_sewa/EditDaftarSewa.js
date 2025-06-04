@@ -7,12 +7,16 @@ const EditDaftarSewa = () => {
   const navigate = useNavigate();
 
   const [daftarSewa, setDaftarSewa] = useState(null);
+  const [tglSelesaiBaru, setTglSelesaiBaru] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [errorTgl, setErrorTgl] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const resSewa = await axios.get(`http://localhost:5000/sewa/${id}`);
         setDaftarSewa(resSewa.data);
+        setTglSelesaiBaru(resSewa.data.tgl_selesai || '');
       } catch (error) {
         console.error(error);
         alert('Gagal mengambil data');
@@ -21,23 +25,35 @@ const EditDaftarSewa = () => {
     fetchData();
   }, [id]);
 
-  // Fungsi untuk update status sewa dan update status kamar jadi Kosong
-const updateStatusSewa = async (statusBaru) => {
-  try {
-    if (statusBaru === 'Selesai') {
-      await axios.put(`http://localhost:5000/sewa/${id}/selesai`);
-    } else if (statusBaru === 'Dibatalkan') {
-      await axios.put(`http://localhost:5000/sewa/${id}/batalkan`);
+  const handleSimpanPerubahan = async () => {
+    if (tglSelesaiBaru < daftarSewa.tgl_mulai) {
+      setErrorTgl('Tanggal selesai tidak boleh lebih awal dari tanggal mulai!');
+      return;
     }
 
-    alert(`Sewa berhasil di${statusBaru === 'Selesai' ? 'akhiri' : 'batalkan'}.`);
-    navigate('/sewa');
-  } catch (error) {
-    console.error(error);
-    alert(`Gagal ${statusBaru === 'Selesai' ? 'menyelesaikan' : 'membatalkan'} sewa`);
-  }
-};
+    try {
+      await axios.put(`http://localhost:5000/sewa/${id}`, {
+        tgl_selesai: tglSelesaiBaru
+      });
+      alert('Data sewa berhasil diperbarui.');
+      navigate('/sewa');
+    } catch (error) {
+      console.error(error);
+      alert('Gagal menyimpan perubahan');
+    }
+  };
 
+  const updateStatusSewa = async (statusBaru) => {
+    try {
+      const endpoint = statusBaru === 'Selesai' ? 'selesai' : 'batalkan';
+      await axios.put(`http://localhost:5000/sewa/${id}/${endpoint}`);
+      alert(`Sewa berhasil di${statusBaru === 'Selesai' ? 'akhiri' : 'batalkan'}.`);
+      navigate('/sewa');
+    } catch (error) {
+      console.error(error);
+      alert(`Gagal ${statusBaru === 'Selesai' ? 'menyelesaikan' : 'membatalkan'} sewa`);
+    }
+  };
 
   if (!daftarSewa) {
     return <div className="has-text-centered mt-6">⏳ Memuat data...</div>;
@@ -51,10 +67,26 @@ const updateStatusSewa = async (statusBaru) => {
 
           <div className="content">
             <p><strong>Nama Penyewa:</strong> {daftarSewa.nama}</p>
-            <p><strong>Nomor Kamar:</strong> {daftarSewa.no_kamar}</p>
             <p><strong>Status Sewa Saat Ini:</strong> {daftarSewa.status_sewa}</p>
             <p><strong>Tanggal Mulai:</strong> {daftarSewa.tgl_mulai}</p>
-            {daftarSewa.tgl_selesai && <p><strong>Tanggal Selesai:</strong> {daftarSewa.tgl_selesai}</p>}
+            <p><strong>Nomor Kamar:</strong> {daftarSewa.no_kamar}</p>
+
+            <div className="field">
+              <label className="label">Tanggal Selesai</label>
+              <div className="control">
+                <input
+                  type="date"
+                  className="input"
+                  value={tglSelesaiBaru}
+                  onChange={(e) => {
+                    setTglSelesaiBaru(e.target.value);
+                    setErrorTgl('');
+                  }}
+                  disabled={!isEditMode || daftarSewa.status_sewa !== 'Aktif'}
+                />
+              </div>
+              {errorTgl && <p className="help is-danger">{errorTgl}</p>}
+            </div>
           </div>
 
           {daftarSewa.status_sewa === 'Aktif' ? (
@@ -65,12 +97,34 @@ const updateStatusSewa = async (statusBaru) => {
               >
                 ❌ Akhiri Sewa
               </button>
+
               <button
-                onClick={() => updateStatusSewa('Dibatalkan')}
-                className="button is-warning is-light"
+                onClick={() => {
+                  const konfirmasi = window.confirm('Yakin ingin membatalkan sewa ini?');
+                  if (konfirmasi) {
+                    updateStatusSewa('Dibatalkan');
+                  }
+                }}
+                className="button is-danger is-light"
               >
                 🚫 Batalkan Sewa
               </button>
+
+              {!isEditMode ? (
+                <button
+                  onClick={() => setIsEditMode(true)}
+                  className="button is-warning is-light"
+                >
+                  ✏️ Edit Daftar Sewa
+                </button>
+              ) : (
+                <button
+                  onClick={handleSimpanPerubahan}
+                  className="button is-success is-light"
+                >
+                  💾 Simpan Perubahan
+                </button>
+              )}
             </div>
           ) : daftarSewa.status_sewa === 'Selesai' ? (
             <div className="notification is-success is-light">

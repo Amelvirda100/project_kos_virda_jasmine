@@ -8,7 +8,7 @@ const EditPenyewa = () => {
 
   const [nama, setNama] = useState('');
   const [alamat, setAlamat] = useState('');
-  const [no_hp, setNoHp] = useState('');
+  const [no_telp, setNoHp] = useState('');
 
   useEffect(() => {
     const fetchPenyewa = async () => {
@@ -16,7 +16,7 @@ const EditPenyewa = () => {
         const res = await axios.get(`http://localhost:5000/penyewa/${id}`);
         setNama(res.data.nama);
         setAlamat(res.data.alamat);
-        setNoHp(res.data.no_hp);
+        setNoHp(res.data.no_telp);
       } catch (err) {
         console.error(err);
         alert('Gagal mengambil data penyewa');
@@ -31,7 +31,7 @@ const EditPenyewa = () => {
       await axios.put(`http://localhost:5000/penyewa/${id}`, {
         nama,
         alamat,
-        no_hp
+        no_telp
       });
       navigate('/penyewa');
     } catch (err) {
@@ -58,7 +58,7 @@ const EditPenyewa = () => {
 
           <div className="field">
             <label className="label">No. HP</label>
-            <input className="input" type="text" value={no_hp} onChange={(e) => setNoHp(e.target.value)} required />
+            <input className="input" type="text" value={no_telp} onChange={(e) => setNoHp(e.target.value)} required />
           </div>
 
           <button type="submit" className="button is-warning is-light mt-4">🔄 Update</button>

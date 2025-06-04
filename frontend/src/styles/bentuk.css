@@ -128,7 +128,11 @@
 }
 
 .bg-color-brown {
-    background-color: #B94A00;
+    background-color: #f03fa0  ;
+}
+
+.bg-color-purple {
+    background-color: #A95DF0;
 }
 
 .text-box p {

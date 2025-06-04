@@ -5,7 +5,7 @@ import axios from 'axios';
 const AddPenyewa = () => {
   const [nama, setNama] = useState('');
   const [alamat, setAlamat] = useState('');
-  const [no_hp, setNoHp] = useState('');
+  const [no_telp, setNoHp] = useState('');
   const navigate = useNavigate();
 
   const savePenyewa = async (e) => {
@@ -14,7 +14,7 @@ const AddPenyewa = () => {
       await axios.post('http://localhost:5000/penyewa', {
         nama,
         alamat,
-        no_hp
+        no_telp
       });
       navigate('/penyewa');
     } catch (error) {
@@ -41,7 +41,7 @@ const AddPenyewa = () => {
 
           <div className="field">
             <label className="label">No. HP</label>
-            <input className="input" type="text" value={no_hp} onChange={(e) => setNoHp(e.target.value)} required />
+            <input className="input" type="text" value={no_telp} onChange={(e) => setNoHp(e.target.value)} required />
           </div>
 
           <button type="submit" className="button is-primary is-light mt-4">💾 Simpan</button>

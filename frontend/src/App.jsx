@@ -13,6 +13,7 @@ import Register from "./components/Register";
 import SewaList from "./components/daftar_sewa/SewaList";
 import AddDaftarSewa from "./components/daftar_sewa/AddDaftarSewa";
 import EditDaftarSewa from "./components/daftar_sewa/EditDaftarSewa";
+import RiwayatList from './components/riwayat_sewa/RiwayatList';
 
 function App() {
   const token = localStorage.getItem("token");
@@ -55,6 +56,9 @@ function App() {
         <Route path="/sewa" element={token ? <SewaList /> : <Navigate to="/login" replace />} />
         <Route path="/sewa/add" element={token ? <AddDaftarSewa /> : <Navigate to="/login" replace />} />
         <Route path="/sewa/edit/:id" element={token ? <EditDaftarSewa /> : <Navigate to="/login" replace />} />
+
+        {/* Riwayat Routes */}
+        <Route path="/riwayat" element={token ? <RiwayatList /> : <Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

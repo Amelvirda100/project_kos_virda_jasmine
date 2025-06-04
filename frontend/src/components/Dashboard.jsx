@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import '../styles/bentuk.css'; 
-import { FaBed, FaUsers, FaClipboardList, FaBars } from "react-icons/fa";
+import { FaBed, FaUsers, FaClipboardList, FaBars, FaHistory } from "react-icons/fa";
 
 const Dashboard = () => {
   const [totalKamar, setTotalKamar] = useState(0);
   const [totalPenyewa, setTotalPenyewa] = useState(0);
   const [totalSewaAktif, setTotalSewaAktif] = useState(0);
   const [sidebarActive, setSidebarActive] = useState(true);
-
+  const [totalRiwayatSewa, setTotalRiwayatSewa] = useState(0);
+  
   const location = useLocation();
 
   useEffect(() => {
@@ -21,10 +22,13 @@ const Dashboard = () => {
       const kamarRes = await axios.get("http://localhost:5000/kamar");
       const penyewaRes = await axios.get("http://localhost:5000/penyewa");
       const sewaRes = await axios.get("http://localhost:5000/sewa");
+      const riwayatRes = await axios.get("http://localhost:5000/riwayat");
 
       setTotalKamar(kamarRes.data.length);
       setTotalPenyewa(penyewaRes.data.length);
       setTotalSewaAktif(sewaRes.data.filter(s => s.status_sewa === "Aktif").length);
+      setTotalRiwayatSewa(riwayatRes.data.length);
+
     } catch (error) {
       console.error("Gagal memuat data dashboard:", error);
     }
@@ -77,6 +81,12 @@ const Dashboard = () => {
               Data Penyewa
             </Link>
           </li>
+          <li className={isActive("/riwayat")}>
+            <Link to="/riwayat" style={{ textDecoration: "none", color: "white" }}>
+              <FaHistory style={{ marginRight: "10px" }} />
+              Riwayat Sewa
+            </Link>
+          </li>
         </ul>
       </aside>
 
@@ -98,7 +108,7 @@ const Dashboard = () => {
           </div>
 
           <div className="noti-box bg-color-red panel-custom" style={{ marginTop: "20px" }}>
-            <div className="icon-box bg-color-red">
+            <div className="icon-box bg-color-green">
               <FaUsers />
             </div>
             <div className="text-box">
@@ -108,14 +118,26 @@ const Dashboard = () => {
           </div>
 
           <div className="noti-box bg-color-brown panel-custom" style={{ marginTop: "20px" }}>
-            <div className="icon-box bg-color-brown">
+            <div className="icon-box bg-color-red">
               <FaClipboardList />
             </div>
             <div className="text-box">
               <p className="main-text">{totalSewaAktif}</p>
               <p>Sewa Aktif</p>
             </div>
+            </div>
+
+          <div className="noti-box bg-color-purple panel-custom" style={{ marginTop: "20px" }}>
+            <div className="icon-box bg-color-brown">
+              <FaHistory />
+            </div>
+            <div className="text-box">
+              <p className="main-text">{totalRiwayatSewa}</p>
+              <p>Riwayat Sewa</p>
+            </div>
           </div>
+
+          
         </main>
       </div>
     </>
