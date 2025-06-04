@@ -12,8 +12,6 @@ const Dashboard = () => {
   const [totalRiwayatSewa, setTotalRiwayatSewa] = useState(0);
   
   const location = useLocation();
-  const navigate = useNavigate(); // letakkan di atas useEffect
-  const token = localStorage.getItem("token"); // atau dari cookies/sessionStorage sesuai implementasi kamu
 
 
   useEffect(() => {
