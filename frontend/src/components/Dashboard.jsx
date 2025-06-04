@@ -19,10 +19,10 @@ const Dashboard = () => {
 
   const getTotalData = async () => {
     try {
-      const kamarRes = await axios.get("http://localhost:5000/kamar");
-      const penyewaRes = await axios.get("http://localhost:5000/penyewa");
-      const sewaRes = await axios.get("http://localhost:5000/sewa");
-      const riwayatRes = await axios.get("http://localhost:5000/riwayat");
+      const kamarRes = await axios.get("https://projek-kos-backend-171192151600.us-central1.run.app/kamar");
+      const penyewaRes = await axios.get("https://projek-kos-backend-171192151600.us-central1.run.app/penyewa");
+      const sewaRes = await axios.get("https://projek-kos-backend-171192151600.us-central1.run.app/sewa");
+      const riwayatRes = await axios.get("https://projek-kos-backend-171192151600.us-central1.run.app/riwayat");
 
       setTotalKamar(kamarRes.data.length);
       setTotalPenyewa(penyewaRes.data.length);
