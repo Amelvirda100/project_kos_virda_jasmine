@@ -31,14 +31,10 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            token ? (
               <>
                 <Navbar />
                 <Dashboard />
               </>
-            ) : (
-              <Navigate to="/login" replace />
-            )
           }
         />
 
