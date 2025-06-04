@@ -14,7 +14,7 @@ const EditKamar = () => {
   useEffect(() => {
     const fetchKamar = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/kamar/${id}`);
+        const res = await axios.get(`https://projek-kos-backend-171192151600.us-central1.run.app/kamar/${id}`);
         setNoKamar(res.data.no_kamar);
         setTipeKamar(res.data.tipe_kamar);
         setHarga(res.data.harga);
@@ -30,7 +30,7 @@ const EditKamar = () => {
   const updateKamar = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/kamar/${id}`, {
+      await axios.put(`https://projek-kos-backend-171192151600.us-central1.run.app/kamar/${id}`, {
         no_kamar,
         tipe_kamar,
         harga,
