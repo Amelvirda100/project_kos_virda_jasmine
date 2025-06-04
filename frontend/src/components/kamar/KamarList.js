@@ -21,7 +21,7 @@ const KamarList = () => {
 
   const getKamar = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/kamar', authHeader());
+      const response = await axios.get('https://projek-kos-backend-171192151600.us-central1.run.app/kamar', authHeader());
       setKamar(response.data);
     } catch (error) {
       console.log(error);
@@ -38,7 +38,7 @@ const KamarList = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/kamar/${kamar_id}`, authHeader());
+      await axios.delete(`https://projek-kos-backend-171192151600.us-central1.run.app/kamar/${kamar_id}`, authHeader());
       getKamar();
     } catch (error) {
       alert(error.response?.data?.msg || "Gagal menghapus kamar");
