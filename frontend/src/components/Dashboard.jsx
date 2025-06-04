@@ -14,7 +14,11 @@ const Dashboard = () => {
   const location = useLocation();
 
   useEffect(() => {
+    if (token!){
+      navigate("/login", {replace: true});
+    } else{
     getTotalData();
+    }
   }, []);
 
   const getTotalData = async () => {
